@@ -12,12 +12,6 @@ X_data_train,X_data_test,Y_data_train,Y_data_test = train_test_split(X_data,Y_da
 model = RandomForestClassifier()
 model.fit(X_data_train,Y_data_train)
 
-pkl.dump(model , open('heart_model.pkl','wb'))
-
-prediction = model.predict(X_data_test)
-score= accuracy_score(Y_data_test,prediction)
-prediction_proba = model.predict_proba(X_data_test)
-
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 import streamlit as st
