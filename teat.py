@@ -94,14 +94,5 @@ st.write(health)
 import pickle as pkl 
 load_model = pkl.load(open('heart_model.pkl','rb'))
 
-prediction_proba = load_model.predict(health)
-prediction_proba_list = prediction_proba.tolist()
-prediction_proba_list_2 = list(chain.from_iterable(prediction_proba_list))
-st.subheader('Prediction probability')
-fig1,ax1= plt.subplots()
-ax1.pie(prediction_proba_list_2,labels = ('not likely','likely') ,autopct="%1.1f%%", explode= (0,0.1)
-        , startangle = 90)
-ax1.axis('equal')
 
-st.pyplot(fig1)
 
