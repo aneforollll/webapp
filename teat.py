@@ -33,77 +33,41 @@ blood_pressure = st.sidebar.slider('Blood pressure',0,200,100)
 cholesterol = st.sidebar.slider('Cholesterol',0,600,300)
 fastingBS = st.sidebar.slider('Blood Sugar',0,150,75)
 max_hr = st.sidebar.slider('Max Heart rate',60,200,130)
-fasting_1 = 0
-fasting_2 = 0
-sex_class_1 = 0
-sex_class_2 =0
-chestpaintype_class_1 = 0
-chestpaintype_class_2 = 0
-chestpaintype_class_3 = 0
-chestpaintype_class_4 = 0
-if(fastingBS > 120):
-    fasting_1 = 1
-    fasting_2 = 0
-else:
-    fasting_1 = 0
-    fasting_2 = 1
-if(sex_1 == True):
-    sex_class_1 = 1
-    sex_class_2 =0
-else:
-    sex_class_1 = 0
-    sex_class_2 = 1
-if(chestpaintype_1 == True):
-    chestpaintype_class_1 = 3
-    chestpaintype_class_2 = 0 
-    chestpaintype_class_3 = 0
-    chestpaintype_class_4 = 0
-elif(chestpaintype_2 == True):
-    chestpaintype_class_1 = 0
-    chestpaintype_class_2 = 4
-    chestpaintype_class_3 = 0
-    chestpaintype_class_4 = 0
-elif(chestpaintype_3 == True):
-    chestpaintype_class_1 = 0
-    chestpaintype_class_2 = 0
-    chestpaintype_class_3 = 5
-    chestpaintype_class_4 = 0
-else:
-    chestpaintype_class_1 = 0
-    chestpaintype_class_2 = 0
-    chestpaintype_class_3 = 0
-    chestpaintype_class_4 = 6
+sex_class_1 = 1 if sex_1 else 0
+sex_class_2 = 1 if sex_2 else 0
 
+chestpaintype_class_1 = 1 if chestpaintype_1 else 0
+chestpaintype_class_2 = 1 if chestpaintype_2 else 0
+chestpaintype_class_3 = 1 if chestpaintype_3 else 0
+chestpaintype_class_4 = 1 if chestpaintype_4 else 0
 
-
-data = { 'Age' : age,
-         'Sex_1' : sex_class_1,
-         'Sex_2' : sex_class_2,
-         'ChestPainType_1' : chestpaintype_class_1,
-         'ChestPainType_2' : chestpaintype_class_2,
-         'ChestPainType_3' : chestpaintype_class_3,
-         'ChestPainType_4' : chestpaintype_class_4,
-         'RestingBP' : blood_pressure,
-         'Cholesterol' : cholesterol,
-         'FastingBS_1' : fasting_1,
-         'FastingBS_2' : fasting_2,
-         'MaxHR' : max_hr,
+data = {
+    'Age': age,
+    'Sex_1': sex_class_1,
+    'Sex_2': sex_class_2,
+    'ChestPainType_1': chestpaintype_class_1,
+    'ChestPainType_2': chestpaintype_class_2,
+    'ChestPainType_3': chestpaintype_class_3,
+    'ChestPainType_4': chestpaintype_class_4,
+    'RestingBP': blood_pressure,
+    'Cholesterol': cholesterol,
+    'FastingBS_1': 1 if fastingBS > 120 else 0,
+    'FastingBS_2': 1 if fastingBS <= 120 else 0,
+    'MaxHR': max_hr,
 }
 
-health = pd.DataFrame(data, index = [0])
+health = pd.DataFrame(data, index=[0])
 st.write(health)
 
 import pickle as pkl 
-load_model = pkl.load(open('heart_model.pkl','rb'))
+load_model = pkl.load(open('heart_model.pkl', 'rb'))
 
-prediction_proba = load_model.predict_proba(health)
-prediction_proba_list = prediction_proba.tolist()
-prediction_proba_list_2 = list(chain.from_iterable(prediction_proba_list))
+prediction = load_model.predict(health)
+prediction_proba_list_2 = [1 - prediction[0], prediction[0]]
+
 st.subheader('Prediction probability')
-fig1,ax1= plt.subplots()
-ax1.pie(prediction_proba_list_2,labels = ('not likely','likely') ,autopct="%1.1f%%", explode= (0,0.1)
-        , startangle = 90)
+fig1, ax1 = plt.subplots()
+ax1.pie(prediction_proba_list_2, labels=('not likely', 'likely'), autopct="%1.1f%%", explode=(0, 0.1), startangle=90)
 ax1.axis('equal')
 
 st.pyplot(fig1)
-
