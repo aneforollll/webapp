@@ -1,6 +1,7 @@
 
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.tree import DecisionTreeClassifier
 import streamlit as st
 from sklearn.linear_model import LogisticRegression
 import matplotlib.pyplot as plt
@@ -94,6 +95,6 @@ import pickle as pkl
 load_model = pkl.load(open('heart_model.pkl','rb'))
 
 
-
+prediction_proba = load_model.predict_proba(health)
 
 
