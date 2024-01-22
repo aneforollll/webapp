@@ -57,6 +57,7 @@ data = {
 }
 
 health = pd.DataFrame(data, index=[0])
+health = health.fillna(0)
 st.write(health)
 
 import pickle as pkl 
