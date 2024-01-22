@@ -87,14 +87,14 @@ data = { 'Age' : age,
          'MaxHR' : max_hr,
 }
 
-Features = pd.DataFrame(data, index = [0])
-st.write(Features)
+health = pd.DataFrame(data, index = [0])
+st.write(health)
 
 import pickle as pkl 
 load_model = pkl.load(open('heart_model.pkl','rb'))
 
 
-prediction_proba = load_model.predict_proba(Features)
+prediction_proba = load_model.predict_proba(health)
 prediction_proba_list = prediction_proba.tolist()
 prediction_proba_list_2 = list(chain.from_iterable(prediction_proba_list))
 st.subheader('Prediction probability')
