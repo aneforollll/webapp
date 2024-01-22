@@ -16,4 +16,6 @@ pkl.dump(model , open('heart_model.pkl','wb'))
 
 prediction = model.predict(X_data_test)
 score= accuracy_score(Y_data_test,prediction)
+prediction_proba = model.predict_proba(X_data_test)
+print(prediction_proba)
 print(score)
