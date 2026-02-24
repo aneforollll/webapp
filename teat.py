@@ -90,7 +90,7 @@ health = pd.DataFrame(data, index = [0])
 st.write(health)
 
 import pickle as pkl 
-load_model = pkl.load(open('heart_model.pkl','rb'))
+load_model = pkl.load(open('C:\Gitthub\webapp\heart_model.pkl','rb'))
 
 
 prediction_proba = load_model.predict_proba(health)
