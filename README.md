@@ -6,7 +6,8 @@ The backend is powered by **FastAPI** to serve a trained predictive model, and t
 
 
 
-![alt text](<images\Screenshot 2026-02-25 213536.png>)
+<img width="888" height="923" alt="Screenshot 2026-02-25 213536" src="https://github.com/user-attachments/assets/87be6971-cd45-4601-9fd4-f66f1b2df25b" />
+
 
 
 ## Features
