@@ -12,7 +12,17 @@ app = FastAPI(title="Heart Disease Prediction API")
 def serve_home_page():
     # Make sure index.html is in the same folder as main.py
     return FileResponse("index.html")
-# Add this CORS configuration block right here
+
+@app.get("/style.css")
+def serve_css():
+    return FileResponse("style.css")
+
+@app.get("/script.js")
+def serve_js():
+    return FileResponse("script.js")
+
+
+# Add CORS configuration block
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"], # Allows all origins. In production, change to your domain.
@@ -40,8 +50,6 @@ class HealthData(BaseModel):
 # 4. Create the prediction endpoint
 @app.post("/predict")
 def predict_heart_disease(data: HealthData):
-    # Apply your exact data transformation logic
-
     # Fasting Blood Sugar logic
     fasting_1 = 1 if data.fasting_bs > 120 else 0
     fasting_2 = 0 if data.fasting_bs > 120 else 1
@@ -67,7 +75,7 @@ def predict_heart_disease(data: HealthData):
     else:
         raise HTTPException(status_code=400, detail="Invalid chest pain type")
 
-    # Construct the dictionary mapped to your model's exact features
+    # Construct the dictionary
     input_features = {
         'Age': [data.age],
         'Sex_1': [sex_class_1],

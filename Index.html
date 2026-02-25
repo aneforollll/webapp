@@ -5,54 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Heart Disease Prediction</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f7f6;
-            color: #333;
-            display: flex;
-            justify-content: center;
-            padding: 2rem;
-        }
-        .container {
-            background: white;
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            max-width: 800px;
-            width: 100%;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 2rem;
-        }
-        .form-section, .chart-section {
-            flex: 1;
-            min-width: 300px;
-        }
-        h2 { margin-top: 0; color: #2c3e50; }
-        .form-group { margin-bottom: 1rem; }
-        label { display: block; margin-bottom: 0.5rem; font-weight: bold; }
-        input, select {
-            width: 100%;
-            padding: 0.5rem;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-sizing: border-box;
-        }
-        button {
-            width: 100%;
-            padding: 0.75rem;
-            background-color: #3498db;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-        button:hover { background-color: #2980b9; }
-        .error { color: #e74c3c; margin-top: 1rem; display: none; }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -62,12 +15,15 @@
         <form id="predictionForm">
             <div class="form-group">
                 <label>Age</label>
-                <input type="number" id="age" required>
+                <span class="help-text">Patient's age in years (Range: 1 - 120).</span>
+                <input type="number" id="age" min="1" max="120" placeholder="e.g., 45" required>
             </div>
             
             <div class="form-group">
                 <label>Sex</label>
+                <span class="help-text">Biological sex of the patient.</span>
                 <select id="sex" required>
+                    <option value="" disabled selected>Select sex...</option>
                     <option value="male">Male</option>
                     <option value="female">Female</option>
                 </select>
@@ -75,32 +31,38 @@
 
             <div class="form-group">
                 <label>Chest Pain Type</label>
+                <span class="help-text">Type of chest discomfort experienced by the patient.</span>
                 <select id="chest_pain_type" required>
-                    <option value="none">None</option>
-                    <option value="acid_reflux">Acid Reflux</option>
-                    <option value="ata">Atypical Angina (ATA)</option>
-                    <option value="squeezed">Squeezed</option>
+                    <option value="" disabled selected>Select pain type...</option>
+                    <option value="none">None - No chest pain</option>
+                    <option value="acid_reflux">Acid Reflux - Heartburn-like discomfort</option>
+                    <option value="ata">Atypical Angina (ATA) - Pain not clearly related to heart</option>
+                    <option value="squeezed">Squeezed - Typical heavy, squeezing pain</option>
                 </select>
             </div>
 
             <div class="form-group">
                 <label>Resting Blood Pressure</label>
-                <input type="number" id="blood_pressure" required>
+                <span class="help-text">Systolic blood pressure at rest in mm Hg. Typical range: 80 - 200.</span>
+                <input type="number" id="blood_pressure" min="50" max="250" placeholder="e.g., 120" required>
             </div>
 
             <div class="form-group">
                 <label>Cholesterol</label>
-                <input type="number" id="cholesterol" required>
+                <span class="help-text">Serum cholesterol level in mg/dl. Typical range: 100 - 600.</span>
+                <input type="number" id="cholesterol" min="0" max="800" placeholder="e.g., 190" required>
             </div>
 
             <div class="form-group">
                 <label>Fasting Blood Sugar</label>
-                <input type="number" id="fasting_bs" required>
+                <span class="help-text">Blood sugar level after fasting in mg/dl. Typical range: 50 - 300.</span>
+                <input type="number" id="fasting_bs" min="20" max="500" placeholder="e.g., 95" required>
             </div>
 
             <div class="form-group">
                 <label>Max Heart Rate</label>
-                <input type="number" id="max_hr" required>
+                <span class="help-text">Maximum heart rate achieved during exercise. Typical range: 60 - 220 bpm.</span>
+                <input type="number" id="max_hr" min="40" max="250" placeholder="e.g., 150" required>
             </div>
 
             <button type="submit">Predict</button>
@@ -111,88 +73,10 @@
     <div class="chart-section">
         <h2>Prediction Result</h2>
         <canvas id="predictionChart"></canvas>
+        <div id="riskSummary" class="risk-summary"></div>
     </div>
 </div>
 
-<script>
-    let myPieChart = null; // Store chart instance to destroy it before redrawing
-
-    document.getElementById('predictionForm').addEventListener('submit', async function(e) {
-        e.preventDefault(); // Prevent page reload
-        
-        const errorDiv = document.getElementById('errorMessage');
-        errorDiv.style.display = 'none';
-
-        // 1. Gather data from form
-        const payload = {
-            age: parseInt(document.getElementById('age').value),
-            sex: document.getElementById('sex').value,
-            chest_pain_type: document.getElementById('chest_pain_type').value,
-            blood_pressure: parseInt(document.getElementById('blood_pressure').value),
-            cholesterol: parseInt(document.getElementById('cholesterol').value),
-            fasting_bs: parseInt(document.getElementById('fasting_bs').value),
-            max_hr: parseInt(document.getElementById('max_hr').value)
-        };
-
-        try {
-            // 2. Send POST request to FastAPI backend
-            // Note: Make sure the port (8000) matches where your FastAPI app is running
-            const response = await fetch('/predict', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-
-            if (!response.ok) {
-                throw new Error("Server error or invalid input data.");
-            }
-
-            const data = await response.json();
-            
-            // 3. Draw the pie chart with the response data
-            drawChart(data.chance_not_likely, data.chance_likely);
-
-        } catch (error) {
-            errorDiv.textContent = "Error: " + error.message + " (Is your FastAPI server running and CORS enabled?)";
-            errorDiv.style.display = 'block';
-        }
-    });
-
-    function drawChart(notLikely, likely) {
-        const ctx = document.getElementById('predictionChart').getContext('2d');
-        
-        // Destroy existing chart if it exists so we don't overlap them
-        if (myPieChart) {
-            myPieChart.destroy();
-        }
-
-        myPieChart = new Chart(ctx, {
-            type: 'pie',
-            data: {
-                labels: ['Not Likely', 'Likely'],
-                datasets: [{
-                    data: [notLikely * 100, likely * 100], // Convert to percentages
-                    backgroundColor: [
-                        '#2ecc71', // Green for Not Likely
-                        '#e74c3c'  // Red for Likely
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                return context.label + ': ' + context.raw.toFixed(2) + '%';
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    }
-</script>
+<script src="script.js" defer></script>
 </body>
 </html>
